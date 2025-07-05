@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id               String    @id @default(uuid())
+  user_name        String    @unique
+  source_language  String
+  target_language  String
+  word_initiated   Json      @default("[]")     // JSON array of words
+  word_progress    Json      @default("{}")     // JSON object { word: progress }
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  
+  // Relationships
+  sessions         Session[]
+
+  @@map("users")
+}
+
+// Session model  
+model Session {
+  id              String    @id @default(uuid())
+  user_id         String
+  message_history Json      @default("[]")     // JSON array of messages
+  created_at      DateTime  @default(now())
+  
+  // Relationships
+  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+} 
